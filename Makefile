@@ -69,13 +69,20 @@ ifeq ($(shell uname -s),Darwin)
 bundle: build
 	packaging/macos/bundle.sh "$(TARGET)" "$(BUNDLE)"
 
+# BINDIR gets a link rather than a copy, so the shell and Finder run the
+# same build.
 install: bundle
 	mkdir -p "$(MAC_APPDIR)"
 	ditto "$(BUNDLE)" "$(MAC_APPDIR)/Disktree.app"
+	mkdir -p "$(BINDIR)"
+	ln -sf "$(MAC_APPDIR)/Disktree.app/Contents/MacOS/disktree" \
+	    "$(BINDIR)/disktree"
 	@echo "Installed $(MAC_APPDIR)/Disktree.app"
+	@echo "Linked $(BINDIR)/disktree"
 
 uninstall:
 	rm -rf "$(MAC_APPDIR)/Disktree.app"
+	rm -f "$(BINDIR)/disktree"
 else
 bundle:
 	@echo "App bundles require macOS" >&2
